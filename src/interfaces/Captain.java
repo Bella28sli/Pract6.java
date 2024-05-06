@@ -1,0 +1,12 @@
+package interfaces;
+
+import java.util.ArrayList;
+
+public interface Captain {
+
+    public void CreateNewOrder(ArrayList<ArrayList<Object>> captainOrders);
+    public void DeleteOrder(Integer orderID, ArrayList<ArrayList<Object>> captainOrders);
+    public void RaiseEmployee(ArrayList<ArrayList<Object>> employees);
+    public void LowerEmployee(ArrayList<ArrayList<Object>> employees);
+
+}
