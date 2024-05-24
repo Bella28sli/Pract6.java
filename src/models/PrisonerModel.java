@@ -2,11 +2,25 @@ package models;
 
 import interfaces.Prisoner;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class PrisonerModel extends PrisonPerson implements Prisoner {
+    private static final Logger prisonerLog = Logger.getLogger(CaptainModel.class.getName());
+
+    public PrisonerModel() throws IOException {
+        FileHandler fileHandler = new FileHandler("PrisonerLog.log", true);
+        prisonerLog.addHandler(fileHandler);
+        prisonerLog.setLevel(Level.ALL);
+        SimpleFormatter formatter = new SimpleFormatter();
+        fileHandler.setFormatter(formatter);
+    }
     @Override
     public void WorkAtFactory(Integer prisonerID, ArrayList<ArrayList<Object>> heretics) {
         AtomicInteger prisonerIndex = new AtomicInteger(-1);
@@ -19,6 +33,7 @@ public class PrisonerModel extends PrisonPerson implements Prisoner {
         });
         if(prisonerID>=0 && faith.get() != null){
             heretics.get(prisonerIndex.get()).set(1, faith.get()-4);
+            prisonerLog.info("Заключённый работает");
         }
     }
 
@@ -34,7 +49,7 @@ public class PrisonerModel extends PrisonPerson implements Prisoner {
                 heretics.get(index).set(1,faith + 4);
             }
             catch(Exception ex){
-                System.out.println(ex.getMessage());
+                prisonerLog.severe(ex.getMessage());
             }
         });
     }
@@ -51,7 +66,7 @@ public class PrisonerModel extends PrisonPerson implements Prisoner {
                 heretics.get(index).set(1,faith - 5);
             }
             catch(Exception ex){
-                System.out.println(ex.getMessage());
+                prisonerLog.severe(ex.getMessage());
             }
         });
     }

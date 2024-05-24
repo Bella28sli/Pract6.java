@@ -3,12 +3,27 @@ package models;
 
 import interfaces.Employee;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class EmployeeModel extends PrisonPerson implements Employee {
+
+    private static final Logger employeeLog = Logger.getLogger(CaptainModel.class.getName());
+
+    public EmployeeModel() throws IOException {
+        FileHandler fileHandler = new FileHandler("EmployeeLog.log", true);
+        employeeLog.addHandler(fileHandler);
+        employeeLog.setLevel(Level.ALL);
+        SimpleFormatter formatter = new SimpleFormatter();
+        fileHandler.setFormatter(formatter);
+    }
 
     @Override
     public void checkHeretics(Integer hereticID, int requiredAmount, ArrayList<ArrayList<Object>> heretics) {
@@ -17,20 +32,23 @@ public class EmployeeModel extends PrisonPerson implements Employee {
         heretics.forEach(p -> {
             if((int)p.get(0) == hereticID)
                 if((double)p.get(1) == 100)
-                    System.out.printf("Heretic with id %d has chosen the right way of soul safety", (int)p.get(0));
+                    employeeLog.info("Еретик с ID" + (int)p.get(0) + "выбрал правильный путь для спасения души");
         });
     }
 
     @Override
     public void ListenToTheCaptain(ArrayList<ArrayList<Object>> captainOrders) {
-        if(captainOrders.isEmpty())
+        if(captainOrders.isEmpty()) {
             System.out.println("There aren't any new orders from the command for now. Continue doing your duty");
+            employeeLog.info("Приказов от капитана нет");
+        }
         else{
             System.out.printf("\n!!!!!!Caution, comrade, there are %d new orders in our prison", captainOrders.size());
             captainOrders.forEach(p -> {
                 System.out.println("\t" + ((Integer)p.get(0)).toString() + " -- " + (String)p.get(3) + "task type: " + ((Integer)p.get(1)).toString());
             });
             System.out.println("\t--------------------------------------------------");
+            employeeLog.info("Есть приказы от капитана");
         }
     }
 
@@ -38,17 +56,20 @@ public class EmployeeModel extends PrisonPerson implements Employee {
     public void ListenToTerminationOrders(ArrayList<ArrayList<Object>> captainOrders) {
         ArrayList<ArrayList<Object>> requiredOrders = new ArrayList<>();
         captainOrders.forEach(o -> {
-            if(((Integer)o.get(1)).equals(1))
+            if (((Integer) o.get(1)).equals(1))
                 requiredOrders.add(o);
         });
-        if(captainOrders.isEmpty() || requiredOrders.isEmpty())
+        if (captainOrders.isEmpty() || requiredOrders.isEmpty()){
             System.out.println("There aren't any new orders from the command for now. Continue doing your duty");
+            employeeLog.info("Нет приказов расторжения");
+        }
         else{
             System.out.printf("\n!!!!!!Caution, comrade, there are %d new orders in our prison", captainOrders.size());
             requiredOrders.forEach(p -> {
                 System.out.println("\t" + ((Integer)p.get(0)).toString() + " -- " + (String)p.get(3) + "task type: " + ((Integer)p.get(1)).toString());
             });
             System.out.println("\t--------------------------------------------------");
+            employeeLog.info("Есть приказы расторжения");
         }
     }
 
@@ -59,14 +80,17 @@ public class EmployeeModel extends PrisonPerson implements Employee {
             if(((Integer)o.get(2)).equals(1))
                 requiredOrders.add(o);
         });
-        if(captainOrders.isEmpty() || requiredOrders.isEmpty())
+        if(captainOrders.isEmpty() || requiredOrders.isEmpty()){
             System.out.println("There aren't any new orders from the command for now. Continue doing your duty");
+            employeeLog.info("Нет приказов просвещения");
+        }
         else{
             System.out.printf("\n!!!!!!Caution, comrade, there are %d new orders in our prison", captainOrders.size());
             requiredOrders.forEach(p -> {
                 System.out.println("\t" + ((Integer)p.get(0)).toString() + " -- " + (String)p.get(3) + "task type: " + ((Integer)p.get(1)).toString());
             });
             System.out.println("\t--------------------------------------------------");
+            employeeLog.info("Есть приказы просвещения");
         }
     }
 
@@ -77,14 +101,17 @@ public class EmployeeModel extends PrisonPerson implements Employee {
             if(((Integer)o.get(3)).equals(1))
                 requiredOrders.add(o);
         });
-        if(captainOrders.isEmpty() || requiredOrders.isEmpty())
+        if(captainOrders.isEmpty() || requiredOrders.isEmpty()){
             System.out.println("There aren't any new orders from the command for now. Continue doing your duty");
+            employeeLog.info("Нет приказов уборки");
+        }
         else{
             System.out.printf("\n!!!!!!Caution, comrade, there are %d new orders in our prison", captainOrders.size());
             requiredOrders.forEach(p -> {
                 System.out.println("\t" + ((Integer)p.get(0)).toString() + " -- " + (String)p.get(3) + "task type: " + ((Integer)p.get(1)).toString());
             });
             System.out.println("\t--------------------------------------------------");
+            employeeLog.info("Есть приказ уборки");
         }
     }
 
@@ -103,6 +130,7 @@ public class EmployeeModel extends PrisonPerson implements Employee {
                         System.out.println("You're the closest to the captain person, you're the law in our prison. Well, your task is o look for prisoners and punish the for heretic actions. You also can read them sermons to enlighten heretics");
                 }
         });
+        employeeLog.info("Возможности проверены успешно");
     }
 
     @Override
@@ -117,7 +145,7 @@ public class EmployeeModel extends PrisonPerson implements Employee {
             }
         });
         if(!employeeExists.get() || currentAccessLevel.get() == null){
-            System.out.println("There aren`t employee with these personal ID");
+            employeeLog.warning("Нет сотрудника с таким ID");
             return;
         }
         captainOrders.forEach(p -> {
@@ -125,13 +153,13 @@ public class EmployeeModel extends PrisonPerson implements Employee {
                 currentOrder.set(p);
         });
         if(currentOrder.get() == null){
-            System.out.println("Order with this id doesn't exist");
+            employeeLog.warning("Нет приказа с таким ID");
             return;
         }
         switch ((Integer)currentOrder.get().get(1)){
             case 1:
                 if(currentAccessLevel.get() < 2){
-                    System.out.println("You don't have high enough access level to complete order");
+                    employeeLog.warning("У вас не хватает уровня доступа для выполнения приказа");
                     break;
                 }
                 //Unchecked cast
@@ -148,13 +176,13 @@ public class EmployeeModel extends PrisonPerson implements Employee {
                         heretics.remove(h);
                     }
                     catch(Exception ex){
-                        System.out.println(ex.getMessage());
+                        employeeLog.severe(ex.getMessage());
                     }
                 });
                 break;
             case 2:
                 if(currentAccessLevel.get() < 1){
-                    System.out.println("You don't have high enough access level to complete order");
+                    employeeLog.warning("У вас не хватает уровня доступа для выполнения приказа");
                     break;
                 }
                 List<Integer> hereticsIDsToEnlighten = (List<Integer>)currentOrder.get().get(2);
@@ -172,13 +200,13 @@ public class EmployeeModel extends PrisonPerson implements Employee {
                         heretics.get(index).set(1,faith + 12);
                     }
                     catch(Exception ex){
-                        System.out.println(ex.getMessage());
+                        employeeLog.severe(ex.getMessage());
                     }
                 });
                 break;
             case 3:
                 System.out.println("Cleaning...");
-                System.out.println("Cleaning completed");
+                employeeLog.info("Уборка завершена");
                 break;
         }
     }
